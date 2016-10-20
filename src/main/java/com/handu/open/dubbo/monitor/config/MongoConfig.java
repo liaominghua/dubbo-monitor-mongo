@@ -15,12 +15,8 @@
  */
 package com.handu.open.dubbo.monitor.config;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.mongodb.Mongo;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -31,9 +27,11 @@ import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.core.convert.CustomConversions;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-import java.util.List;
-
-import static java.util.Collections.singletonList;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 
 /**
  * MongoDB Config
@@ -48,11 +46,7 @@ public class MongoConfig extends AbstractMongoConfiguration {
     @Autowired
     private Environment env;
 
-    private static final String DB_URL = "db.url";
-    private static final String DB_PORT = "db.port";
-    private static final String DB_USERNAME = "db.username";
-    private static final String DB_DATABASE = "db.database";
-    private static final String DB_PASSWORD = "db.password";
+    private static final String DB_URL = "db.uri";
 
     private List<Converter<?, ?>> converters = Lists.newArrayList();
 
@@ -66,13 +60,7 @@ public class MongoConfig extends AbstractMongoConfiguration {
     @Bean
     public Mongo mongo() throws Exception {
         final String url = Preconditions.checkNotNull(env.getProperty(DB_URL));
-        final int port = Integer.parseInt(env.getProperty(DB_PORT, "27017"));
-        final String username = env.getProperty(DB_USERNAME);
-        final String database = env.getProperty(DB_DATABASE);
-        final String password = env.getProperty(DB_PASSWORD);
-
-        return new MongoClient(singletonList(new ServerAddress(url, port)),
-                singletonList(MongoCredential.createCredential(username, database, password.toCharArray())));
+        return new MongoClient(new MongoClientURI(url));
     }
 
     @Override
