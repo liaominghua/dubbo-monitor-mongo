@@ -10,8 +10,8 @@
             <PatternLayout charset="UTF-8" pattern="%d{ABSOLUTE} &lt;%c&gt; %5p [%t]: %m%n"/>
         </Console>
 
-        <RollingRandomAccessFile name="LOG_FILE" fileName="/Users/apple/Desktop/dubbo-monitor-mongo.log"
-                                 filePattern="/Users/apple/Desktop/$${date:yyyy-MM}/dubbo-monitor-mongo-%d{yyyy-MM-dd}-%i.log.gz">
+        <RollingRandomAccessFile name="LOG_FILE" fileName="${logger.path}/dubbo-monitor-mongo.log"
+                                 filePattern="${logger.path}/dubbo-monitor-mongo-%d{yyyy-MM-dd}-%i.log.gz">
 
             <PatternLayout charset="UTF-8" pattern="%d{ABSOLUTE} &lt;%c&gt; %5p [%t]: %m%n"/>
             <Policies>

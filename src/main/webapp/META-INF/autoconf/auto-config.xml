@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	
+	<group name="application">
+		<property name="logger.path" description="日志路径" defaultValue="."/>
+		<property name="dubbo.registry.address" description="zookeeper注册中心地址" defaultValue="zookeeper://192.168.10.76:2181"/>
+		<property name="dubbo.protocol.port" description="MonitorService服务dubbo地址" defaultValue="20880"/>
+		<property name="db.uri" description="Mongodb的连接URI" defaultValue="mongodb://66money:w3PhUsFWxb@192.168.10.76:27017,192.168.10.76:27018,192.168.10.76:27019/?readPreference=primaryPreferred;authSource=admin"/>
+		<property name="manager.username" description="DubboMonitor用户名" defaultValue="admin"/>
+		<property name="manager.password" description="DubboMonitor密码" defaultValue="admin"/>
+	</group>
+
+       
+			
+	<script>
+	 	<generate template="WEB-INF/classes/log4j2.xml.vm"  destfile="WEB-INF/classes/log4j2.xml" charset="UTF-8" />
+		<generate template="WEB-INF/classes/application.properties.vm"  destfile="WEB-INF/classes/application.properties" charset="UTF-8" />
+	</script>
+</config>
