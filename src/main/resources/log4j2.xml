@@ -10,8 +10,8 @@
             <PatternLayout charset="UTF-8" pattern="%d{ABSOLUTE} &lt;%c&gt; %5p [%t]: %m%n"/>
         </Console>
 
-        <RollingRandomAccessFile name="LOG_FILE" fileName="${sys:user.dir}/logs/dubbo-monitor-mongo.log"
-                                 filePattern="$${sys:user.dir}/logs/$${date:yyyy-MM}/dubbo-monitor-mongo-%d{yyyy-MM-dd}-%i.log.gz">
+        <RollingRandomAccessFile name="LOG_FILE" fileName="/Users/apple/Desktop/dubbo-monitor-mongo.log"
+                                 filePattern="/Users/apple/Desktop/$${date:yyyy-MM}/dubbo-monitor-mongo-%d{yyyy-MM-dd}-%i.log.gz">
 
             <PatternLayout charset="UTF-8" pattern="%d{ABSOLUTE} &lt;%c&gt; %5p [%t]: %m%n"/>
             <Policies>
@@ -25,7 +25,9 @@
         <!-- Root Logger -->
         <Root level="info">
             <AppenderRef ref="STDOUT"/>
+            <!-- 
             <AppenderRef ref="LOG_FILE"/>
+             -->
         </Root>
     </Loggers>
 

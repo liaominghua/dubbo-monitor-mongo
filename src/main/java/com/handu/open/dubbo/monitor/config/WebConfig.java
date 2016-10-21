@@ -15,12 +15,13 @@
  */
 package com.handu.open.dubbo.monitor.config;
 
-import jetbrick.template.web.springmvc.JetTemplateViewResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+
+import jetbrick.template.web.springmvc.JetTemplateViewResolver;
 
 /**
  * @author Jinkai.Ma

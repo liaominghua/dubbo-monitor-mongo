@@ -22,6 +22,10 @@ import com.alibaba.dubbo.common.utils.NetUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.registry.NotifyListener;
 import com.alibaba.dubbo.registry.RegistryService;
+
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -35,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Jinkai.Ma
  */
 @Service
-public class RegistryContainer {
+public class RegistryContainer implements ApplicationListener<ApplicationEvent> {
 
     public static final String REGISTRY_ADDRESS = "dubbo.registry.address";
 
@@ -187,98 +191,105 @@ public class RegistryContainer {
         return urls;
     }
 
-    @PostConstruct
     public void start() {
-        URL subscribeUrl = new URL(Constants.ADMIN_PROTOCOL, NetUtils.getLocalHost(), 0, "",
-                Constants.INTERFACE_KEY, Constants.ANY_VALUE,
-                Constants.GROUP_KEY, Constants.ANY_VALUE,
-                Constants.VERSION_KEY, Constants.ANY_VALUE,
-                Constants.CLASSIFIER_KEY, Constants.ANY_VALUE,
-                Constants.CATEGORY_KEY, Constants.PROVIDERS_CATEGORY + ","
-                + Constants.CONSUMERS_CATEGORY,
-                Constants.CHECK_KEY, String.valueOf(false));
-        registry.subscribe(subscribeUrl, new NotifyListener() {
-            public void notify(List<URL> urls) {
-                if (urls == null || urls.size() == 0) {
-                    return;
-                }
-                Map<String, List<URL>> proivderMap = new HashMap<String, List<URL>>();
-                Map<String, List<URL>> consumerMap = new HashMap<String, List<URL>>();
-                for (URL url : urls) {
-                    String application = url.getParameter(Constants.APPLICATION_KEY);
-                    if (application != null && application.length() > 0) {
-                        applications.add(application);
-                    }
-                    String service = url.getServiceInterface();
-                    services.add(service);
-                    String category = url.getParameter(Constants.CATEGORY_KEY, Constants.DEFAULT_CATEGORY);
-                    if (Constants.PROVIDERS_CATEGORY.equals(category)) {
-                        if (Constants.EMPTY_PROTOCOL.equals(url.getProtocol())) {
-                            serviceProviders.remove(service);
-                        } else {
-                            List<URL> list = proivderMap.get(service);
-                            if (list == null) {
-                                list = new ArrayList<URL>();
-                                proivderMap.put(service, list);
-                            }
-                            list.add(url);
-                            if (application != null && application.length() > 0) {
-                                Set<String> serviceApplications = providerServiceApplications.get(service);
-                                if (serviceApplications == null) {
-                                    providerServiceApplications.put(service, new ConcurrentHashSet<String>());
-                                    serviceApplications = providerServiceApplications.get(service);
-                                }
-                                serviceApplications.add(application);
+    		 URL subscribeUrl = new URL(Constants.ADMIN_PROTOCOL, NetUtils.getLocalHost(), 0, "",
+    	                Constants.INTERFACE_KEY, Constants.ANY_VALUE,
+    	                Constants.GROUP_KEY, Constants.ANY_VALUE,
+    	                Constants.VERSION_KEY, Constants.ANY_VALUE,
+    	                Constants.CLASSIFIER_KEY, Constants.ANY_VALUE,
+    	                Constants.CATEGORY_KEY, Constants.PROVIDERS_CATEGORY + ","
+    	                + Constants.CONSUMERS_CATEGORY,
+    	                Constants.CHECK_KEY, String.valueOf(false));
+    	        registry.subscribe(subscribeUrl, new NotifyListener() {
+    	            public void notify(List<URL> urls) {
+    	                if (urls == null || urls.size() == 0) {
+    	                    return;
+    	                }
+    	                Map<String, List<URL>> proivderMap = new HashMap<String, List<URL>>();
+    	                Map<String, List<URL>> consumerMap = new HashMap<String, List<URL>>();
+    	                for (URL url : urls) {
+    	                    String application = url.getParameter(Constants.APPLICATION_KEY);
+    	                    if (application != null && application.length() > 0) {
+    	                        applications.add(application);
+    	                    }
+    	                    String service = url.getServiceInterface();
+    	                    services.add(service);
+    	                    String category = url.getParameter(Constants.CATEGORY_KEY, Constants.DEFAULT_CATEGORY);
+    	                    if (Constants.PROVIDERS_CATEGORY.equals(category)) {
+    	                        if (Constants.EMPTY_PROTOCOL.equals(url.getProtocol())) {
+    	                            serviceProviders.remove(service);
+    	                        } else {
+    	                            List<URL> list = proivderMap.get(service);
+    	                            if (list == null) {
+    	                                list = new ArrayList<URL>();
+    	                                proivderMap.put(service, list);
+    	                            }
+    	                            list.add(url);
+    	                            if (application != null && application.length() > 0) {
+    	                                Set<String> serviceApplications = providerServiceApplications.get(service);
+    	                                if (serviceApplications == null) {
+    	                                    providerServiceApplications.put(service, new ConcurrentHashSet<String>());
+    	                                    serviceApplications = providerServiceApplications.get(service);
+    	                                }
+    	                                serviceApplications.add(application);
 
-                                Set<String> applicationServices = providerApplicationServices.get(application);
-                                if (applicationServices == null) {
-                                    providerApplicationServices.put(application, new ConcurrentHashSet<String>());
-                                    applicationServices = providerApplicationServices.get(application);
-                                }
-                                applicationServices.add(service);
-                            }
-                        }
-                    } else if (Constants.CONSUMERS_CATEGORY.equals(category)) {
-                        if (Constants.EMPTY_PROTOCOL.equals(url.getProtocol())) {
-                            serviceConsumers.remove(service);
-                        } else {
-                            List<URL> list = consumerMap.get(service);
-                            if (list == null) {
-                                list = new ArrayList<URL>();
-                                consumerMap.put(service, list);
-                            }
-                            list.add(url);
-                            if (application != null && application.length() > 0) {
-                                Set<String> serviceApplications = consumerServiceApplications.get(service);
-                                if (serviceApplications == null) {
-                                    consumerServiceApplications.put(service, new ConcurrentHashSet<String>());
-                                    serviceApplications = consumerServiceApplications.get(service);
-                                }
-                                serviceApplications.add(application);
+    	                                Set<String> applicationServices = providerApplicationServices.get(application);
+    	                                if (applicationServices == null) {
+    	                                    providerApplicationServices.put(application, new ConcurrentHashSet<String>());
+    	                                    applicationServices = providerApplicationServices.get(application);
+    	                                }
+    	                                applicationServices.add(service);
+    	                            }
+    	                        }
+    	                    } else if (Constants.CONSUMERS_CATEGORY.equals(category)) {
+    	                        if (Constants.EMPTY_PROTOCOL.equals(url.getProtocol())) {
+    	                            serviceConsumers.remove(service);
+    	                        } else {
+    	                            List<URL> list = consumerMap.get(service);
+    	                            if (list == null) {
+    	                                list = new ArrayList<URL>();
+    	                                consumerMap.put(service, list);
+    	                            }
+    	                            list.add(url);
+    	                            if (application != null && application.length() > 0) {
+    	                                Set<String> serviceApplications = consumerServiceApplications.get(service);
+    	                                if (serviceApplications == null) {
+    	                                    consumerServiceApplications.put(service, new ConcurrentHashSet<String>());
+    	                                    serviceApplications = consumerServiceApplications.get(service);
+    	                                }
+    	                                serviceApplications.add(application);
 
-                                Set<String> applicationServices = consumerApplicationServices.get(application);
-                                if (applicationServices == null) {
-                                    consumerApplicationServices.put(application, new ConcurrentHashSet<String>());
-                                    applicationServices = consumerApplicationServices.get(application);
-                                }
-                                applicationServices.add(service);
-                            }
+    	                                Set<String> applicationServices = consumerApplicationServices.get(application);
+    	                                if (applicationServices == null) {
+    	                                    consumerApplicationServices.put(application, new ConcurrentHashSet<String>());
+    	                                    applicationServices = consumerApplicationServices.get(application);
+    	                                }
+    	                                applicationServices.add(service);
+    	                            }
 
-                        }
-                    }
-                }
-                if (proivderMap != null && proivderMap.size() > 0) {
-                    serviceProviders.putAll(proivderMap);
-                }
-                if (consumerMap != null && consumerMap.size() > 0) {
-                    serviceConsumers.putAll(consumerMap);
-                }
-            }
-        });
+    	                        }
+    	                    }
+    	                }
+    	                if (proivderMap != null && proivderMap.size() > 0) {
+    	                    serviceProviders.putAll(proivderMap);
+    	                }
+    	                if (consumerMap != null && consumerMap.size() > 0) {
+    	                    serviceConsumers.putAll(consumerMap);
+    	                }
+    	            }
+    	        });
+    	        
+       
     }
 
     @PreDestroy
     public void stop() {
+    }
+
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (ContextRefreshedEvent.class.getName().equals(event.getClass().getName())) {
+        	start();
+        }
     }
 
 }
