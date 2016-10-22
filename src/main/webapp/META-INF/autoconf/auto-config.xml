@@ -13,7 +13,7 @@
        
 			
 	<script>
-	 	<generate template="WEB-INF/classes/log4j2.xml.vm"  destfile="WEB-INF/classes/log4j2.xml" charset="UTF-8" />
+	 	<generate template="WEB-INF/classes/log4j.xml.vm"  destfile="WEB-INF/classes/log4j.xml" charset="UTF-8" />
 		<generate template="WEB-INF/classes/application.properties.vm"  destfile="WEB-INF/classes/application.properties" charset="UTF-8" />
 	</script>
 </config>

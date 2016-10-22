@@ -15,6 +15,33 @@
  */
 package com.handu.open.dubbo.monitor;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import javax.annotation.PostConstruct;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.Fields;
+import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
+import org.springframework.data.mongodb.core.mapreduce.GroupBy;
+import org.springframework.data.mongodb.core.mapreduce.GroupByResults;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+
 import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.common.logger.Logger;
@@ -28,23 +55,6 @@ import com.google.common.collect.Sets;
 import com.handu.open.dubbo.monitor.domain.DubboInvoke;
 import com.handu.open.dubbo.monitor.support.QueryConstructor;
 import com.handu.open.dubbo.monitor.support.UuidUtil;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
-import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
-import org.springframework.data.mongodb.core.mapreduce.GroupBy;
-import org.springframework.data.mongodb.core.mapreduce.GroupByResults;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-
-import javax.annotation.PostConstruct;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * MonitorService
@@ -261,41 +271,24 @@ public class DubboMonitorService implements MonitorService {
      */
     public Map<String, List> countDubboInvokeTopTen(DubboInvoke dubboInvoke) {
         Map<String, List> result = Maps.newHashMap();
-
-        Criteria criteris = Criteria.where("invokeDate").gte(dubboInvoke.getInvokeDateFrom()).lte(dubboInvoke.getInvokeDateTo())
+        result.put("success",getListByResultType(dubboInvoke, "success"));
+        result.put("failure", getListByResultType(dubboInvoke, "failure"));
+        return result;
+    }
+    
+    private List<DubboInvoke> getListByResultType(DubboInvoke dubboInvoke, String type){
+    	Criteria criteris = Criteria.where("invokeDate").gte(dubboInvoke.getInvokeDateFrom()).lte(dubboInvoke.getInvokeDateTo())
                 .and("type").is(dubboInvoke.getType());
 
-        List<DubboInvoke> successList = Lists.newArrayList();
-        GroupByResults<DubboInvoke> successResults = mongoTemplate.group(criteris, "dubboInvoke",
-                GroupBy.key("service", "method").initialDocument("{ success: 0 }")
-                        .reduceFunction("function(doc, prev) { prev.success += doc.success }"),
-                DubboInvoke.class);
-        for (DubboInvoke dubboInvoke1 : successResults) {
-            successList.add(dubboInvoke1);
-        }
-        Collections.sort(successList, new Comparator<DubboInvoke>() {
-            public int compare(DubboInvoke arg0, DubboInvoke arg1) {
-                return (int) (arg1.getSuccess() - arg0.getSuccess());
-            }
-        });
-        successList.subList(0, successList.size() > 19 ? 19 : successList.size());
-        result.put("success", successList);
-
-        List<DubboInvoke> failureList = Lists.newArrayList();
-        GroupByResults<DubboInvoke> failureResults = mongoTemplate.group(criteris, "dubboInvoke",
-                GroupBy.key("service", "method").initialDocument("{ failure: 0 }")
-                        .reduceFunction("function(doc, prev) { prev.failure += doc.failure }"),
-                DubboInvoke.class);
-        for (DubboInvoke dubboInvoke1 : failureResults) {
-            failureList.add(dubboInvoke1);
-        }
-        Collections.sort(failureList, new Comparator<DubboInvoke>() {
-            public int compare(DubboInvoke arg0, DubboInvoke arg1) {
-                return (int) (arg1.getFailure() - arg0.getFailure());
-            }
-        });
-        failureList.subList(0, failureList.size() > 19 ? 19 : failureList.size());
-        result.put("failure", failureList);
-        return result;
+        List<DubboInvoke> resultList = Lists.newArrayList();
+        List<AggregationOperation> operations = new ArrayList<AggregationOperation>();
+        operations.add(Aggregation.match(criteris));
+        operations.add(Aggregation.group( Fields.fields("service", "method")).sum(type).as(type));
+        operations.add(Aggregation.sort(Sort.DEFAULT_DIRECTION.DESC,type));
+        operations.add(Aggregation.limit(20));
+        operations.add(Aggregation.project("service","method",type));
+        AggregationResults<DubboInvoke> successResults = mongoTemplate.aggregate(Aggregation.newAggregation(operations),"dubboInvoke", DubboInvoke.class);
+        resultList.addAll(successResults.getMappedResults());
+        return resultList;
     }
 }
