@@ -21,20 +21,36 @@ $(function () {
         dateFrom.val(picker.startDate.format(dateFormat));
         dateTo.val(picker.endDate.format(dateFormat));
         rangeSpan.text(dateFrom.val() + ' ~ ' + dateTo.val());
-        loadChartsData();
+
     });
     dateFrom.val(moment().format(dateFormat));
     dateTo.val(moment().format(dateFormat));
     rangeSpan.text(dateFrom.val() + ' ~ ' + dateTo.val());
-    loadChartsData();
+
 });
 
 function loadChartsData() {
+    var invokeDateFrom = new Date($('#invokeDateFrom').val().replace(new RegExp("-","gm"),"/") + ' 00:00:00');
+    var invokeDateTo = new Date($('#invokeDateTo').val().replace(new RegExp("-","gm"),"/") + ' 23:59:59');
+    var provider = $('#serviceRole').val();
+    if( !provider ) {
+        provider = "provider";
+    }
+    var size = $('#size').val();
+    if( !size ) {
+        size = 20;
+    }
+    var serviceType = $('#serviceType').val();
+    if (!serviceType) {
+        serviceType = "success";
+    }
     $.ajax({
         type: "POST", url: "loadTopData", dataType: "json", data: {
-            "invokeDateFrom": new Date($('#invokeDateFrom').val().replace(new RegExp("-","gm"),"/") + ' 00:00:00'),
-            "invokeDateTo": new Date($('#invokeDateTo').val().replace(new RegExp("-","gm"),"/") + ' 23:59:59'),
-            "type": 'provider'
+            "invokeDateFrom": invokeDateFrom,
+            "invokeDateTo": invokeDateTo,
+            "type": provider,
+            "size": size,
+            "serviceType":serviceType
         }, error: function (req, status, err) {
             alert('Failed reason: ' + err);
         }, success: function (data) {
@@ -48,13 +64,11 @@ function loadChartsData() {
 }
 
 function drawCharts(data) {
-    for (x in data.data) {
-        drawChart(data.data[x]);
-    }
+        drawChart(data.data[0]);
 }
 
 function drawChart(data) {
-    $('#TOP-' + data.chartType).highcharts({
+    $('#topCharts').highcharts({
         chart: {
             type: 'column',
             zoomType: 'x'
