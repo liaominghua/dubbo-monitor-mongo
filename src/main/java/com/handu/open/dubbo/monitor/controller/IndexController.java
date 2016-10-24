@@ -20,6 +20,7 @@ import com.handu.open.dubbo.monitor.DubboMonitorService;
 import com.handu.open.dubbo.monitor.domain.DubboInvoke;
 import com.handu.open.dubbo.monitor.domain.DubboInvokeLineChart;
 import com.handu.open.dubbo.monitor.domain.LineChartSeries;
+import com.handu.open.dubbo.monitor.domain.TopChatRequestModel;
 import com.handu.open.dubbo.monitor.support.CommonResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -58,7 +59,7 @@ public class IndexController {
 
     @ResponseBody
     @RequestMapping(value = "loadTopData")
-    public CommonResponse loadTopDate(@ModelAttribute DubboInvoke dubboInvoke) {
+    public CommonResponse loadTopDate(@ModelAttribute TopChatRequestModel topChatRequestModel) {
         CommonResponse commonResponse = CommonResponse.createCommonResponse();
         List<DubboInvokeLineChart> dubboInvokeLineChartList = new ArrayList<DubboInvokeLineChart>();
         DubboInvokeLineChart successDubboInvokeLineChart = new DubboInvokeLineChart();
@@ -66,42 +67,43 @@ public class IndexController {
         LineChartSeries slineChartSeries = new LineChartSeries();
         List<double[]> sdataList = Lists.newArrayList();
         double[] data;
-        Map dubboInvokeMap = dubboMonitorService.countDubboInvokeTopTen(dubboInvoke);
-        List<DubboInvoke> success = (List<DubboInvoke>) dubboInvokeMap.get("success");
-        for (DubboInvoke di : success) {
+        Map dubboInvokeMap = dubboMonitorService.countDubboInvokeTopTen(topChatRequestModel);
+        List<DubboInvoke> result = (List<DubboInvoke>) dubboInvokeMap.get(topChatRequestModel.getServiceType());
+        for (DubboInvoke di : result) {
             sxAxisCategories.add(di.getMethod());
-            data = new double[]{di.getSuccess()};
+            if(TopChatRequestModel.CONCURRENT.equals(topChatRequestModel.getServiceType())){
+            	data = new double[]{di.getConcurrent()};
+            }
+            else if(TopChatRequestModel.ELAPSED.equals(topChatRequestModel.getServiceType())) {
+            	data = new double[]{di.getElapsed()};
+            }
+            else if(TopChatRequestModel.SUCCESS.equals(topChatRequestModel.getServiceType())) {
+            	data = new double[]{di.getSuccess()};
+            	
+            }
+            else if(TopChatRequestModel.FAILURE.equals(topChatRequestModel.getServiceType())) {
+            	data = new double[]{di.getFailure()};
+            }
+            else if(TopChatRequestModel.MAXCONCURRENT.equals(topChatRequestModel.getServiceType())) {
+            	data = new double[]{di.getMaxConcurrent()};
+            }
+            else if(TopChatRequestModel.MAXELAPSED.equals(topChatRequestModel.getServiceType())) {
+            	data = new double[]{di.getMaxElapsed()};
+            }
+            else{
+            	data = new double[]{0};
+            }
             sdataList.add(data);
         }
         slineChartSeries.setData(sdataList);
-        slineChartSeries.setName("provider");
+        slineChartSeries.setName(topChatRequestModel.getType());
 
         successDubboInvokeLineChart.setxAxisCategories(sxAxisCategories);
         successDubboInvokeLineChart.setSeriesData(Arrays.asList(slineChartSeries));
-        successDubboInvokeLineChart.setChartType("SUCCESS");
-        successDubboInvokeLineChart.setTitle("The Top 20 of Invoke Success");
-        successDubboInvokeLineChart.setyAxisTitle("t");
+        successDubboInvokeLineChart.setChartType(topChatRequestModel.getServiceType());
+        successDubboInvokeLineChart.setTitle("The Top "+topChatRequestModel.getSize()+" of Invoke "+topChatRequestModel.getServiceType());
+        successDubboInvokeLineChart.setyAxisTitle(" t");
         dubboInvokeLineChartList.add(successDubboInvokeLineChart);
-
-        DubboInvokeLineChart failureDubboInvokeLineChart = new DubboInvokeLineChart();
-        List<String> fxAxisCategories = Lists.newArrayList();
-        LineChartSeries flineChartSeries = new LineChartSeries();
-        List<double[]> fdataList = Lists.newArrayList();
-        List<DubboInvoke> failure = (List<DubboInvoke>) dubboInvokeMap.get("failure");
-        for (DubboInvoke di : failure) {
-            fxAxisCategories.add(di.getMethod());
-            data = new double[]{di.getFailure()};
-            fdataList.add(data);
-        }
-        flineChartSeries.setData(fdataList);
-        flineChartSeries.setName("provider");
-
-        failureDubboInvokeLineChart.setxAxisCategories(fxAxisCategories);
-        failureDubboInvokeLineChart.setSeriesData(Arrays.asList(flineChartSeries));
-        failureDubboInvokeLineChart.setChartType("FAILURE");
-        failureDubboInvokeLineChart.setTitle("The Top 20 of Invoke Failure");
-        failureDubboInvokeLineChart.setyAxisTitle("t");
-        dubboInvokeLineChartList.add(failureDubboInvokeLineChart);
 
         commonResponse.setData(dubboInvokeLineChartList);
         return commonResponse;

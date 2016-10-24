@@ -49,6 +49,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.handu.open.dubbo.monitor.domain.DubboInvoke;
+import com.handu.open.dubbo.monitor.domain.TopChatRequestModel;
 import com.handu.open.dubbo.monitor.support.QueryConstructor;
 import com.handu.open.dubbo.monitor.support.UuidUtil;
 
@@ -265,24 +266,25 @@ public class DubboMonitorService implements MonitorService {
      * @param dubboInvoke
      * @return
      */
-    public Map<String, List> countDubboInvokeTopTen(DubboInvoke dubboInvoke) {
+    public Map<String, List> countDubboInvokeTopTen(TopChatRequestModel topChatRequestModel) {
         Map<String, List> result = Maps.newHashMap();
-        result.put("success",getListByResultType(dubboInvoke, "success"));
-        result.put("failure", getListByResultType(dubboInvoke, "failure"));
+        result.put(topChatRequestModel.getServiceType(),getListByResultType(topChatRequestModel));
         return result;
     }
     
-    private List<DubboInvoke> getListByResultType(DubboInvoke dubboInvoke, String type){
-    	Criteria criteris = Criteria.where("invokeDate").gte(dubboInvoke.getInvokeDateFrom()).lte(dubboInvoke.getInvokeDateTo())
-                .and("type").is(dubboInvoke.getType());
+    private List<DubboInvoke> getListByResultType(TopChatRequestModel topChatRequestModel){
+    	Criteria criteris = Criteria.where("invokeDate").gte(topChatRequestModel.getInvokeDateFrom()).lte(topChatRequestModel.getInvokeDateTo());
+    	if(!topChatRequestModel.getType().equals(TopChatRequestModel.DEFAULT_TYPE)) {
+    		criteris.and("type").is(topChatRequestModel.getType());
+    	}
 
         List<DubboInvoke> resultList = Lists.newArrayList();
         List<AggregationOperation> operations = new ArrayList<AggregationOperation>();
         operations.add(Aggregation.match(criteris));
-        operations.add(Aggregation.group( Fields.fields("service", "method")).sum(type).as(type));
-        operations.add(Aggregation.sort(Sort.DEFAULT_DIRECTION.DESC,type));
-        operations.add(Aggregation.limit(20));
-        operations.add(Aggregation.project("service","method",type));
+        operations.add(Aggregation.group( Fields.fields("service", "method")).sum(topChatRequestModel.getServiceType()).as(topChatRequestModel.getServiceType()));
+        operations.add(Aggregation.sort(Sort.DEFAULT_DIRECTION.DESC,topChatRequestModel.getServiceType()));
+        operations.add(Aggregation.limit(topChatRequestModel.getSize()));
+        operations.add(Aggregation.project("service","method",topChatRequestModel.getServiceType()));
         AggregationResults<DubboInvoke> successResults = mongoTemplate.aggregate(Aggregation.newAggregation(operations),"dubboInvoke", DubboInvoke.class);
         resultList.addAll(successResults.getMappedResults());
         return resultList;

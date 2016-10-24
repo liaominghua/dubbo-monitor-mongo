@@ -32,9 +32,9 @@ $(function () {
 function loadChartsData() {
     var invokeDateFrom = new Date($('#invokeDateFrom').val().replace(new RegExp("-","gm"),"/") + ' 00:00:00');
     var invokeDateTo = new Date($('#invokeDateTo').val().replace(new RegExp("-","gm"),"/") + ' 23:59:59');
-    var provider = $('#serviceRole').val();
-    if( !provider ) {
-        provider = "provider";
+    var type = $('#serviceRole').val();
+    if( !type ) {
+    	type = "both";
     }
     var size = $('#size').val();
     if( !size ) {
@@ -42,13 +42,13 @@ function loadChartsData() {
     }
     var serviceType = $('#serviceType').val();
     if (!serviceType) {
-        serviceType = "success";
+        serviceType = "suc";
     }
     $.ajax({
         type: "POST", url: "loadTopData", dataType: "json", data: {
             "invokeDateFrom": invokeDateFrom,
             "invokeDateTo": invokeDateTo,
-            "type": provider,
+            "type": type,
             "size": size,
             "serviceType":serviceType
         }, error: function (req, status, err) {
