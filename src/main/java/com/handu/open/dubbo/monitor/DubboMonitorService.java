@@ -215,18 +215,25 @@ public class DubboMonitorService implements MonitorService {
 
     public Set<String> getMethodsByService(DubboInvoke dubboInvoke) {
         Set<String> methods = Sets.newHashSet();
-        Query query = QueryConstructor.get()
+        
+        QueryConstructor qc = QueryConstructor.get()
                 .addIsAttribute("service", dubboInvoke.getService())
                 .addIsAttribute("invokeDate", dubboInvoke.getInvokeDate())
                 .addIsAttribute("provider", dubboInvoke.getProvider())
                 .addIsAttribute("consumer", dubboInvoke.getConsumer())
                 .addIsAttribute("type", dubboInvoke.getType())
                 .addBetweenAttribute("invokeDate", dubboInvoke.getInvokeDateFrom(), dubboInvoke.getInvokeDateTo())
-                .getQuery();
-        List<DubboInvoke> result = mongoTemplate.find(query, DubboInvoke.class, "dubboInvoke");
-        for (DubboInvoke di : result) {
-            methods.add(di.getMethod());
+                ;
+        if(dubboInvoke.getMethod() != null) {
+        	qc.addIsAttribute("method", dubboInvoke.getMethod());
         }
+        List<DubboInvoke> result = mongoTemplate.find(qc.getQuery(), DubboInvoke.class, "dubboInvoke");
+        if(result != null) {
+        	 for (DubboInvoke di : result) {
+                 methods.add(di.getMethod());
+             }
+        }
+       
         return methods;
     }
 

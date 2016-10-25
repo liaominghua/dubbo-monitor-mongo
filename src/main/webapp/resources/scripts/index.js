@@ -100,6 +100,18 @@ function drawChart(data) {
             }
         },plotOptions: {
             series: {
+              events:{
+                click: function(event) {
+                        var serviceMethod = event.point.category ;
+                        var method = serviceMethod.substring(serviceMethod.lastIndexOf('.')+1);
+                        var service = serviceMethod.substring(0,serviceMethod.lastIndexOf('.'));
+
+                        window.open('services/charts?service='+service+'&method='+method);
+
+
+                        }
+
+              },
                 dataLabels: {
                     enabled: true,
 
