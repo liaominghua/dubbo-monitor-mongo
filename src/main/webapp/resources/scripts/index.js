@@ -34,7 +34,7 @@ function loadChartsData() {
     var invokeDateTo = new Date($('#invokeDateTo').val().replace(new RegExp("-","gm"),"/") + ' 23:59:59');
     var type = $('#serviceRole').val();
     if( !type ) {
-    	type = "both";
+    	type = "consumer";
     }
     var size = $('#size').val();
     if( !size ) {

@@ -31,7 +31,7 @@ public class TopChatRequestModel {
 	
 	public static final String MAXCONCURRENT = "maxConcurrent";
 	
-	public static final String DEFAULT_TYPE = "both";
+	public static final String DEFAULT_TYPE = "consumer";
 	
 	private static final Map<String, String>  map = new HashMap<String, String>();
 	static {

@@ -70,7 +70,7 @@ public class IndexController {
         Map dubboInvokeMap = dubboMonitorService.countDubboInvokeTopTen(topChatRequestModel);
         List<DubboInvoke> result = (List<DubboInvoke>) dubboInvokeMap.get(topChatRequestModel.getServiceType());
         for (DubboInvoke di : result) {
-            sxAxisCategories.add(di.getMethod());
+            sxAxisCategories.add(di.getService()+"."+di.getMethod());
             if(TopChatRequestModel.CONCURRENT.equals(topChatRequestModel.getServiceType())){
             	data = new double[]{di.getConcurrent()};
             }
