@@ -28,7 +28,7 @@
         
     <!-- 根logger的设置-->     
     <root>     
-        <priority value ="info"/>     
+        <priority value ="warn"/>     
         <appender-ref ref="console"/>  
         <appender-ref ref="fileAppender"/>   
     </root>     

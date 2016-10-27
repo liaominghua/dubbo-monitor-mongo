@@ -34,9 +34,10 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.Fields;
+import org.springframework.data.mongodb.core.aggregation.GroupOperation;
+import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 
 import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.URL;
@@ -242,27 +243,54 @@ public class DubboMonitorService implements MonitorService {
      * 统计各方法调用信息
      *
      * @param dubboInvoke
+     * @param providerOrConsumer: null： 忽略该参数；否则增加该参数的group by,provider/consumer
      * @return
      */
-    public List<DubboInvoke> countDubboInvokeInfo(DubboInvoke dubboInvoke) {
-        if (StringUtils.isEmpty(dubboInvoke.getService()) || StringUtils.isEmpty(dubboInvoke.getMethod())
-                || StringUtils.isEmpty(dubboInvoke.getType())) {
+    public List<DubboInvoke> countDubboInvokeInfo(DubboInvoke dubboInvoke,String providerOrConsumer) {
+        if (StringUtils.isEmpty(dubboInvoke.getService())) {
             logger.error("统计查询缺少必要参数！");
             throw new RuntimeException("统计查询缺少必要参数！");
         }
+        
+        GroupOperation go = null;
+        if(providerOrConsumer != null) {
+        	if("provider".equals(providerOrConsumer)){
+        		go = Aggregation.group("service", "method","provider");
+        	}
+        	else if("consumer".equals(providerOrConsumer)){
+        		go = Aggregation.group("service", "method","consumer");
+        	}
+        	else {
+        		go = Aggregation.group("service", "method");
+        	}
+        }
+        else{
+        	go = Aggregation.group("service", "method");
+        }
+        
+       Criteria criteria =  Criteria.where("service").is(dubboInvoke.getService())
+        .and("invokeDate").gte(dubboInvoke.getInvokeDateFrom()).lte(dubboInvoke.getInvokeDateTo());
+        
+        if(StringUtils.isNotEmpty(dubboInvoke.getMethod())) {
+        	criteria.and("method").is(dubboInvoke.getMethod());
+        }
+        
+        if(StringUtils.isNotEmpty(dubboInvoke.getType())) {
+        	criteria.and("type").is(dubboInvoke.getType());
+        }
+        
+        
         TypedAggregation<DubboInvoke> aggregation = Aggregation.newAggregation(DubboInvoke.class,
-                Aggregation.match(Criteria.where("service").is(dubboInvoke.getService())
-                        .and("method").is(dubboInvoke.getMethod())
-                        .and("type").is(dubboInvoke.getType())
-                        .and("invokeDate").gte(dubboInvoke.getInvokeDateFrom()).lte(dubboInvoke.getInvokeDateTo())
-                ),
-                Aggregation.group("service", "method")
-                        .sum("success").as("success")
+        		 Aggregation.match(criteria),
+                         go.sum("success").as("success")
                         .sum("failure").as("failure")
                         .sum("elapsed").as("elapsed")
                         .max("maxElapsed").as("maxElapsed")
                         .min("maxConcurrent").as("maxConcurrent")
+                        ,
+                  Aggregation.sort(Sort.DEFAULT_DIRECTION,"service","method")
         );
+        
         AggregationResults<DubboInvoke> result = mongoTemplate.aggregate(aggregation, "dubboInvoke", DubboInvoke.class);
 
         return result.getMappedResults();

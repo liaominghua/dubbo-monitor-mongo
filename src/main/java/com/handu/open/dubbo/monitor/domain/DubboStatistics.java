@@ -46,6 +46,7 @@ public class DubboStatistics implements Serializable {
     private int consumerMaxConcurrent;
 
     private int providerMaxConcurrent;
+    
 
     public String getMethod() {
         return method;

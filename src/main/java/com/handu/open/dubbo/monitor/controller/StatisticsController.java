@@ -24,6 +24,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -59,37 +60,104 @@ public class StatisticsController {
         List<DubboInvoke> dubboInvokes;
         List<DubboStatistics> dubboStatisticses = new ArrayList<DubboStatistics>();
         DubboStatistics dubboStatistics;
-        for (String method : methods) {
+        
+        dubboInvoke.setType("provider");
+        dubboInvokes = dubboMonitorService.countDubboInvokeInfo(dubboInvoke,null);
+        Map<String,DubboStatistics> map = new HashMap<String, DubboStatistics>();
+        for (DubboInvoke di : dubboInvokes) {
+            if (di == null) {
+                continue;
+            }
             dubboStatistics = new DubboStatistics();
-            dubboStatistics.setMethod(method);
-            dubboInvoke.setMethod(method);
-            dubboInvoke.setType("provider");
-            dubboInvokes = dubboMonitorService.countDubboInvokeInfo(dubboInvoke);
-            for (DubboInvoke di : dubboInvokes) {
-                if (di == null) {
-                    continue;
-                }
-                dubboStatistics.setProviderSuccess(di.getSuccess());
-                dubboStatistics.setProviderFailure(di.getFailure());
-                dubboStatistics.setProviderAvgElapsed(di.getSuccess() != 0 ? Double.valueOf(String.format("%.4f", di.getElapsed() / di.getSuccess())) : 0);
-                dubboStatistics.setProviderMaxElapsed(di.getMaxElapsed());
-                dubboStatistics.setProviderMaxConcurrent(di.getMaxConcurrent());
-            }
-            dubboInvoke.setType("consumer");
-            dubboInvokes = dubboMonitorService.countDubboInvokeInfo(dubboInvoke);
-            for (DubboInvoke di : dubboInvokes) {
-                if (di == null) {
-                    continue;
-                }
-                dubboStatistics.setConsumerSuccess(di.getSuccess());
-                dubboStatistics.setConsumerFailure(di.getFailure());
-                dubboStatistics.setConsumerAvgElapsed(di.getSuccess() != 0 ? Double.valueOf(String.format("%.4f", di.getElapsed() / di.getSuccess())) : 0);
-                dubboStatistics.setConsumerMaxElapsed(di.getMaxElapsed());
-                dubboStatistics.setConsumerMaxConcurrent(di.getMaxConcurrent());
-            }
+            dubboStatistics.setMethod(di.getMethod());
+            dubboStatistics.setProviderSuccess(di.getSuccess());
+            dubboStatistics.setProviderFailure(di.getFailure());
+            dubboStatistics.setProviderAvgElapsed(di.getSuccess() != 0 ? Double.valueOf(String.format("%.0f", di.getElapsed() / di.getSuccess())) : 0);
+            dubboStatistics.setProviderMaxElapsed(di.getMaxElapsed());
+            dubboStatistics.setProviderMaxConcurrent(di.getMaxConcurrent());
             dubboStatisticses.add(dubboStatistics);
+            map.put(di.getMethod(), dubboStatistics);
         }
+        
+        dubboInvoke.setType("consumer");
+        dubboInvokes = dubboMonitorService.countDubboInvokeInfo(dubboInvoke,null);
+        for (DubboInvoke di : dubboInvokes) {
+            if (di == null) {
+                continue;
+            }
+            dubboStatistics = map.get(di.getMethod());
+            if(dubboStatistics == null ) {
+            	dubboStatistics = new DubboStatistics();
+            	dubboStatistics.setMethod(di.getMethod());
+            	dubboStatisticses.add(dubboStatistics);
+            }
+            
+            dubboStatistics.setConsumerSuccess(di.getSuccess());
+            dubboStatistics.setConsumerFailure(di.getFailure());
+            dubboStatistics.setConsumerAvgElapsed(di.getSuccess() != 0 ? Double.valueOf(String.format("%.0f", di.getElapsed() / di.getSuccess())) : 0);
+            dubboStatistics.setConsumerMaxElapsed(di.getMaxElapsed());
+            dubboStatistics.setConsumerMaxConcurrent(di.getMaxConcurrent());
+        }
+        
+        
+        
+        //
+        List<DubboStatistics> dubboStatisticsesConsumer = new ArrayList<DubboStatistics>();
+        dubboInvoke.setMethod(null);
+        dubboInvokes = dubboMonitorService.countDubboInvokeInfo(dubboInvoke,"consumer");
+        String method = null;
+        String prefix = "&emsp;|-->";
+        for (DubboInvoke di : dubboInvokes) {
+            if (di == null) {
+                continue;
+            }
+            String curMethod = di.getMethod();
+            if(method == null || !curMethod.equals(method)) {
+            	method = curMethod;
+            	 dubboStatistics = new DubboStatistics();
+            	 dubboStatistics.setMethod(method);
+            	 dubboStatisticsesConsumer.add(dubboStatistics);
+            }
+            dubboStatistics = new DubboStatistics();
+            dubboStatistics.setMethod(prefix.concat(di.getConsumer()));
+            dubboStatistics.setConsumerSuccess(di.getSuccess());
+            dubboStatistics.setConsumerFailure(di.getFailure());
+            dubboStatistics.setConsumerAvgElapsed(di.getSuccess() != 0 ? Double.valueOf(String.format("%.0f", di.getElapsed() / di.getSuccess())) : 0);
+            dubboStatistics.setConsumerMaxElapsed(di.getMaxElapsed());
+            dubboStatistics.setConsumerMaxConcurrent(di.getMaxConcurrent());
+            dubboStatisticsesConsumer.add(dubboStatistics);
+        }
+        
+        List<DubboStatistics> dubboStatisticsesProvider = new ArrayList<DubboStatistics>();
+        dubboInvokes = dubboMonitorService.countDubboInvokeInfo(dubboInvoke,"provider");
+         method = null;
+         prefix = "&emsp;|<--";
+        for (DubboInvoke di : dubboInvokes) {
+            if (di == null) {
+                continue;
+            }
+            String curMethod = di.getMethod();
+            if(method == null || !curMethod.equals(method)) {
+            	method = curMethod;
+            	 dubboStatistics = new DubboStatistics();
+            	 dubboStatistics.setMethod(method);
+            	 dubboStatisticsesProvider.add(dubboStatistics);
+            }
+            dubboStatistics = new DubboStatistics();
+            dubboStatistics.setMethod(prefix.concat(di.getProvider()));
+            dubboStatistics.setProviderSuccess(di.getSuccess());
+            dubboStatistics.setProviderFailure(di.getFailure());
+            dubboStatistics.setProviderAvgElapsed(di.getSuccess() != 0 ? Double.valueOf(String.format("%.0f", di.getElapsed() / di.getSuccess())) : 0);
+            dubboStatistics.setProviderMaxElapsed(di.getMaxElapsed());
+            dubboStatistics.setProviderMaxConcurrent(di.getMaxConcurrent());
+            dubboStatisticsesProvider.add(dubboStatistics);
+        }
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        model.addAttribute("dateRange",sdf.format(dubboInvoke.getInvokeDateFrom()).concat(" ~ ").concat(sdf.format(dubboInvoke.getInvokeDateTo())));
         model.addAttribute("rows", dubboStatisticses);
+        model.addAttribute("rowsConsumer", dubboStatisticsesConsumer);
+        model.addAttribute("rowsProvider", dubboStatisticsesProvider);
         model.addAttribute("service", dubboInvoke.getService());
         return "service/statistics";
     }
