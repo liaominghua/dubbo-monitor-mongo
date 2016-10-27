@@ -200,7 +200,8 @@ public class DubboMonitorService implements MonitorService {
                         .and("invokeDate").gte(dubboInvoke.getInvokeDateFrom()).lte(dubboInvoke.getInvokeDateTo())
                 ),
                 Aggregation.project("service", "method", "type", "success", "failure", "elapsed", "maxElapsed", "maxConcurrent", "invokeTime")
-                        .andExpression("(invokeTime / " + dubboInvoke.getTimeParticle() + ") * " + dubboInvoke.getTimeParticle()).as("invokeTime"),
+                        .andExpression("(invokeTime / " + dubboInvoke.getTimeParticle() + ") * " + dubboInvoke.getTimeParticle()).as("invokeTime")
+                        ,
                 Aggregation.group("service", "method", "type", "invokeTime")
                         .sum("success").as("success")
                         .sum("failure").as("failure")

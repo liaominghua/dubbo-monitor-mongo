@@ -88,9 +88,9 @@ public class ChartsController {
             double[] qpsProviderSeriesData;
             double[] artProviderSeriesData;
             for (DubboInvoke dubboInvokeDetail : providerDubboInvokeDetails) {
-                qpsProviderSeriesData = new double[]{dubboInvokeDetail.getInvokeTime(), Double.valueOf(String.format("%.4f", dubboInvokeDetail.getSuccess() / timeParticle))};
+                qpsProviderSeriesData = new double[]{dubboInvokeDetail.getInvokeTime(), Double.valueOf(String.format("%.2f", (dubboInvokeDetail.getSuccess()+dubboInvokeDetail.getFailure()) / timeParticle))};
                 qpsSeriesDatas.add(qpsProviderSeriesData);
-                artProviderSeriesData = new double[]{dubboInvokeDetail.getInvokeTime(), Double.valueOf(String.format("%.4f", dubboInvokeDetail.getElapsed()))};
+                artProviderSeriesData = new double[]{dubboInvokeDetail.getInvokeTime(), Double.valueOf(String.format("%.0f", dubboInvokeDetail.getElapsed()/(dubboInvokeDetail.getSuccess()+dubboInvokeDetail.getFailure())))};
                 artSeriesDatas.add(artProviderSeriesData);
             }
             qpsLineChartSeries.setData(qpsSeriesDatas);
@@ -109,9 +109,9 @@ public class ChartsController {
             double[] qpsConsumerSeriesData;
             double[] artConsumerSeriesData;
             for (DubboInvoke dubboInvokeDetail : consumerDubboInvokeDetails) {
-                qpsConsumerSeriesData = new double[]{dubboInvokeDetail.getInvokeTime(), Double.valueOf(String.format("%.4f", dubboInvokeDetail.getSuccess() / timeParticle))};
+                qpsConsumerSeriesData = new double[]{dubboInvokeDetail.getInvokeTime(), Double.valueOf(String.format("%.2f", (dubboInvokeDetail.getSuccess()+dubboInvokeDetail.getFailure())/ timeParticle))};
                 qpsSeriesDatas.add(qpsConsumerSeriesData);
-                artConsumerSeriesData = new double[]{dubboInvokeDetail.getInvokeTime(), Double.valueOf(String.format("%.4f", dubboInvokeDetail.getElapsed()))};
+                artConsumerSeriesData = new double[]{dubboInvokeDetail.getInvokeTime(), Double.valueOf(String.format("%.0f", dubboInvokeDetail.getElapsed()/(dubboInvokeDetail.getSuccess()+dubboInvokeDetail.getFailure())))};
                 artSeriesDatas.add(artConsumerSeriesData);
             }
             qpsLineChartSeries.setData(qpsSeriesDatas);
