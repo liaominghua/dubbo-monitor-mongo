@@ -56,7 +56,6 @@ public class StatisticsController {
             dubboInvoke.setInvokeDateTo(endDate.getTime());
         }
         //获取Service方法
-        Set<String> methods = dubboMonitorService.getMethodsByService(dubboInvoke);
         List<DubboInvoke> dubboInvokes;
         List<DubboStatistics> dubboStatisticses = new ArrayList<DubboStatistics>();
         DubboStatistics dubboStatistics;
@@ -104,6 +103,7 @@ public class StatisticsController {
         //
         List<DubboStatistics> dubboStatisticsesConsumer = new ArrayList<DubboStatistics>();
         dubboInvoke.setMethod(null);
+        dubboInvoke.setType("consumer");
         dubboInvokes = dubboMonitorService.countDubboInvokeInfo(dubboInvoke,"consumer");
         String method = null;
         String prefix = "&emsp;|-->";
@@ -129,6 +129,7 @@ public class StatisticsController {
         }
         
         List<DubboStatistics> dubboStatisticsesProvider = new ArrayList<DubboStatistics>();
+        dubboInvoke.setType("provider");
         dubboInvokes = dubboMonitorService.countDubboInvokeInfo(dubboInvoke,"provider");
          method = null;
          prefix = "&emsp;|<--";
