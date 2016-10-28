@@ -1,35 +1,42 @@
-<?xml version="1.0" encoding="UTF-8"?>     
-<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">     
-        
-<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/' >     
-        
-    <appender name="console" class="org.apache.log4j.ConsoleAppender">     
-        <layout class="org.apache.log4j.PatternLayout">     
-            <param name="ConversionPattern"        
-                value="[%d{dd HH:mm:ss,SSS\} %-5p] [%t] %c{2\} - %m%n" />     
-        </layout>     
-        <!--过滤器设置输出的级别-->     
-        <filter class="org.apache.log4j.varia.LevelRangeFilter">     
-            <param name="levelMin" value="trace" />     
-            <param name="levelMax" value="warn" />     
-            <param name="AcceptOnMatch" value="true" />     
-        </filter>     
-    </appender>     
-     
-       
-    <appender name="fileAppender" class="org.apache.log4j.DailyRollingFileAppender">     
-        <param name="File" value="${logger.path}/dubbo-monitor.log" />       
-        <param name="DatePattern" value="'.'yyyy-MM-dd'.log'" />       
-        <layout class="org.apache.log4j.PatternLayout">     
-         <param name="ConversionPattern"       
-            value="[%d{MMdd HH:mm:ss SSS\} %-5p] [%t] %c{3\} - %m%n" />     
-        </layout>       
-    </appender>     
-        
-    <!-- 根logger的设置-->     
-    <root>     
-        <priority value ="warn"/>     
-        <appender-ref ref="console"/>  
-        <appender-ref ref="fileAppender"/>   
-    </root>     
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<appender name="console" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d %t [%F:%L] %-5p : %m%n" />
+		</layout>
+	</appender>
+	
+	<appender name="ALL_APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="${logger.path}dubbo-monitor-all.log" />
+		<param name="append" value="true" />
+		<param name="datePattern" value="'_'yyyy-MM-dd" />
+		<param name="encoding" value="UTF-8" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d %t [%F:%L] %-5p : %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="ERROR_APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="${logger.path}dubbo-monitor-error.log" />
+		<param name="append" value="true" />
+		<param name="datePattern" value="'_'yyyy-MM-dd" />
+		<param name="threshold" value="ERROR" />
+		<param name="encoding" value="UTF-8" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d %t [%F:%L] %-5p : %m%n" />
+		</layout>
+	</appender>
+
+
+	<logger name="com.handu.open.dubbo.monitor" additivity="true">
+		<level value="info" />
+	</logger>
+
+	<root>
+		<level value="info" />
+		<appender-ref ref="ALL_APPENDER" />
+		<appender-ref ref="ERROR_APPENDER" />
+		<appender-ref ref="console" />
+	</root>
 </log4j:configuration>
