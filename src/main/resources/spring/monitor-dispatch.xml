@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans  xmlns="http://www.springframework.org/schema/beans"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
+	
+	<context:property-placeholder location="classpath*:/application.properties" />
+     <!-- set annotation support is true -->  
+    <mvc:annotation-driven />  
+    
+    <!-- autoscan @Component , @Controller , @Service , @Repository ... annotation -->
+    <context:component-scan base-package="com.handu.open.dubbo.monitor.controller" />  
+   
+    <!-- load static resources -->
+    <mvc:resources mapping="/resources/**" location="/resources/"/> 
+    
+	<mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/resources/**"/>
+            <mvc:exclude-mapping path="/login"/>
+             <mvc:exclude-mapping path="/doLogin"/>
+            <bean class="com.handu.open.dubbo.monitor.mvc.CheckUserInterceptor">
+            	<property name="loginPage" value="/dubbo-monitor/login"></property>
+            	<property name="userSessionKey" value="user.key"></property>
+            </bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+    
+    <bean class="com.handu.open.dubbo.monitor.mvc.DefaultUserLoginImpl">
+    	<property name="userName" value="${manager.username}"></property>
+    	<property name="password" value="${manager.password}"></property>
+    </bean>
+     
+    <!-- define view with jetbrick template -->
+    <bean class="jetbrick.template.web.springmvc.JetTemplateViewResolver">
+        <!-- 如果spring 的suffix 没有配置,会读取 template.suffix 这个不是叠加.是 覆盖(spring 的优先) -->
+         <property name="suffix" value=".html" />
+         <property name="contentType" value="text/html; charset=UTF-8" />
+         <property name="order" value="1" />
+    </bean>
+    
+</beans>
