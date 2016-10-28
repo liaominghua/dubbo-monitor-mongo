@@ -41,7 +41,7 @@ public class UnregisterController {
     @RequestMapping(method = RequestMethod.GET)
     public String unregister(@RequestParam String provider, HttpServletRequest request) {
         URL providerUrl = URL.valueOf(provider);
-        registryContainer.getRegistry().unregister(providerUrl);
+        registryContainer.getRegistryService().unregister(providerUrl);
 
         String page;
         Map<String, String[]> params = request.getParameterMap();

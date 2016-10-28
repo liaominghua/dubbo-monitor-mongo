@@ -28,6 +28,7 @@ import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -59,7 +60,6 @@ import com.handu.open.dubbo.monitor.support.UuidUtil;
  *
  * @author Jinkai.Ma
  */
-@Service(delay = -1)
 public class DubboMonitorService implements MonitorService {
 
     private static final Logger logger = LoggerFactory.getLogger(DubboMonitorService.class);

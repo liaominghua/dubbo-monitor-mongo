@@ -43,7 +43,7 @@ public class UnsubscribeController {
     @RequestMapping(method = RequestMethod.GET)
     public String unsubscribe(@RequestParam String consumer, HttpServletRequest request) {
         URL consumerUrl = URL.valueOf(consumer);
-        registryContainer.getRegistry().unsubscribe(consumerUrl, NotifyListenerAdapter.NOTIFY_LISTENER);
+        registryContainer.getRegistryService().unsubscribe(consumerUrl, NotifyListenerAdapter.NOTIFY_LISTENER);
 
         String page;
         Map<String, String[]> params = request.getParameterMap();

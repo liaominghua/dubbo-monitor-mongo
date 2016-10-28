@@ -15,30 +15,35 @@
  */
 package com.handu.open.dubbo.monitor;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.PreDestroy;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+
 import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.common.utils.ConcurrentHashSet;
 import com.alibaba.dubbo.common.utils.NetUtils;
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.registry.NotifyListener;
 import com.alibaba.dubbo.registry.RegistryService;
-
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * RegistryContainer
  *
  * @author Jinkai.Ma
  */
-@Service
 public class RegistryContainer implements ApplicationListener<ApplicationEvent> {
 
     public static final String REGISTRY_ADDRESS = "dubbo.registry.address";
@@ -59,14 +64,19 @@ public class RegistryContainer implements ApplicationListener<ApplicationEvent> 
 
     private final Map<String, List<URL>> serviceConsumers = new ConcurrentHashMap<String, List<URL>>();
 
-    @Reference
-    private RegistryService registry;
+    @Autowired
+    @Qualifier("registryService")
+    private RegistryService registryService;
 
-    public RegistryService getRegistry() {
-        return registry;
+    public RegistryService getRegistryService() {
+        return registryService;
     }
 
-    public Set<String> getApplications() {
+    public void setRegistryService(RegistryService registryService) {
+		this.registryService = registryService;
+	}
+
+	public Set<String> getApplications() {
         return Collections.unmodifiableSet(applications);
     }
 
@@ -200,7 +210,7 @@ public class RegistryContainer implements ApplicationListener<ApplicationEvent> 
     	                Constants.CATEGORY_KEY, Constants.PROVIDERS_CATEGORY + ","
     	                + Constants.CONSUMERS_CATEGORY,
     	                Constants.CHECK_KEY, String.valueOf(false));
-    	        registry.subscribe(subscribeUrl, new NotifyListener() {
+    		 registryService.subscribe(subscribeUrl, new NotifyListener() {
     	            public void notify(List<URL> urls) {
     	                if (urls == null || urls.size() == 0) {
     	                    return;

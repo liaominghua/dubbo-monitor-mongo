@@ -18,7 +18,7 @@
      
        
     <appender name="fileAppender" class="org.apache.log4j.DailyRollingFileAppender">     
-        <param name="File" value="./dubbo-monitor.log" />       
+        <param name="File" value="/Users/apple/Desktop/dubbo-monitor.log" />       
         <param name="DatePattern" value="'.'yyyy-MM-dd'.log'" />       
         <layout class="org.apache.log4j.PatternLayout">     
          <param name="ConversionPattern"       
@@ -28,7 +28,7 @@
         
     <!-- 根logger的设置-->     
     <root>     
-        <priority value ="info"/>     
+        <priority value ="trace"/>     
         <appender-ref ref="console"/>  
         <appender-ref ref="fileAppender"/>   
     </root>     
