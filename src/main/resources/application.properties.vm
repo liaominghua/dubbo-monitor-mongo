@@ -24,3 +24,5 @@ db.database=dubbo_monitor
 #System Manager
 manager.username=${manager.username}
 manager.password=${manager.password}
+manager.ldapAddress=${manager.ldapAddress}
+manager.authType=${manager.authType}

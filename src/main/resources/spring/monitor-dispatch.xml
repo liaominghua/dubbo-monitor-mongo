@@ -39,9 +39,11 @@
         </mvc:interceptor>
     </mvc:interceptors>
     
-    <bean class="com.handu.open.dubbo.monitor.mvc.DefaultUserLoginImpl">
-    	<property name="userName" value="${manager.username}"></property>
-    	<property name="password" value="${manager.password}"></property>
+    <bean class="com.handu.open.dubbo.monitor.mvc.UserLoginFactoryBean">
+    	<property name="managerUsername" value="${manager.username}"></property>
+    	<property name="managerPassword" value="${manager.password}"></property>
+    	<property name="ldapAddress" value="${manager.ldapAddress}"></property>
+    	<property name="authType" value="${manager.authType}"></property>
     </bean>
      
     <!-- define view with jetbrick template -->

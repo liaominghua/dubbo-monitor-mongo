@@ -8,6 +8,8 @@
 		<property name="db.uri" description="Mongodb的连接URI" defaultValue="mongodb://66money:w3PhUsFWxb@192.168.10.76:27017,192.168.10.76:27018,192.168.10.76:27019/?readPreference=primaryPreferred;authSource=admin"/>
 		<property name="manager.username" description="DubboMonitor用户名" defaultValue="admin"/>
 		<property name="manager.password" description="DubboMonitor密码" defaultValue="admin"/>
+		<property name="manager.ldapAddress" description="LDAP的连接地址，如：test.corp.com:389" defaultValue="test.corp.com:389"/>
+		<property name="manager.authType" description="登录认证类型：local,ldap" defaultValue="local"/>
 	</group>
 
        

@@ -1,13 +1,18 @@
 package com.handu.open.dubbo.monitor.mvc;
 
+import java.io.Serializable;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 public class CheckUserInterceptor implements HandlerInterceptor {
+	
+	private static final Logger logger = Logger.getLogger(CheckUserInterceptor.class);
 	
 	private String loginPage;
 	
@@ -16,10 +21,12 @@ public class CheckUserInterceptor implements HandlerInterceptor {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
         HttpSession session = request.getSession();
-        if (session.getAttribute(userSessionKey) == null) {
+        Serializable sessionData = (Serializable)session.getAttribute(userSessionKey);
+        if ( sessionData == null) {
             response.sendRedirect(loginPage);
             return false;
         } else {
+        	logger.info("User: ".concat(sessionData.toString()).concat(" access: ").concat(request.getRequestURI()));
             return true;
         }
 	}
