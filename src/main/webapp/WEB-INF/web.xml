@@ -7,29 +7,33 @@
 		</listener-class>
 	</listener>
 
-    <listener>     
-         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>     
-    </listener>
-    
-    <context-param>  
-        <param-name>contextConfigLocation</param-name>  
-        <param-value>classpath*:spring/spring-*.xml</param-value>  
-    </context-param> 
-	
-    <listener>
-      <listener-class>jetbrick.template.web.JetEngineListener</listener-class>
-    </listener>
-      
-      <!-- set load jetbrick-template properties -->
-    <context-param>
-      <param-name>jetbrick-template-config-location</param-name>
-      <param-value>classpath:template/jetbrick-template.properties</param-value>
-    </context-param>
-    
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener
+		</listener-class>
+	</listener>
+
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath*:spring/spring-*.xml</param-value>
+	</context-param>
+
+	<listener>
+		<listener-class>jetbrick.template.web.JetEngineListener
+		</listener-class>
+	</listener>
+
+	<!-- set load jetbrick-template properties -->
+	<context-param>
+		<param-name>jetbrick-template-config-location</param-name>
+		<param-value>classpath:template/jetbrick-template.properties
+		</param-value>
+	</context-param>
+
 	<!-- Spring mvc -->
 	<servlet>
 		<servlet-name>springServlet</servlet-name>
-		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet
+		</servlet-class>
 		<init-param>
 			<param-name>contextConfigLocation</param-name>
 			<param-value>classpath*:spring/monitor-dispatch.xml</param-value>
@@ -41,7 +45,7 @@
 		<servlet-name>springServlet</servlet-name>
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
-	
-	
-	
+
+
+
 </web-app>
