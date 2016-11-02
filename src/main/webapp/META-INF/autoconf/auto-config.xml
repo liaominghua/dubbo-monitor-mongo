@@ -10,6 +10,14 @@
 		<property name="manager.password" description="DubboMonitor密码" defaultValue="admin"/>
 		<property name="manager.ldapAddress" description="LDAP的连接地址，如：test.corp.com:389" defaultValue="test.corp.com:389"/>
 		<property name="manager.authType" description="登录认证类型：local,ldap" defaultValue="local"/>
+		<property name="redis.maxWaitMillis" description="最大等待时间，毫秒" defaultValue="5000"/>
+		<property name="redis.minIdle" description="最小空闲连接数" defaultValue="2"/>
+		<property name="redis.maxIdle" description="最大空闲连接数" defaultValue="2"/>
+		<property name="redis.host" description="redis 服务器地址" defaultValue="localhost"/>
+		<property name="redis.port" description="redis端口" defaultValue="6379"/>
+		<property name="redis.dataBaseIndex" description="redis db index" defaultValue="0"/>
+		<property name="redis.maxTotal" description="redis最大连接数" defaultValue="20"/>
+		<property name="redis.password" description="redis认证密码" defaultValue="" required="false"/>
 	</group>
 
        

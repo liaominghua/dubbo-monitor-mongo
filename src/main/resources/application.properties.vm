@@ -26,3 +26,13 @@ manager.username=${manager.username}
 manager.password=${manager.password}
 manager.ldapAddress=${manager.ldapAddress}
 manager.authType=${manager.authType}
+
+#redis config
+redis.maxWaitMillis=${redis.maxWaitMillis}
+redis.maxTotal=${redis.maxTotal}
+redis.minIdle=${redis.minIdle}
+redis.maxIdle=${redis.maxIdle}
+redis.host=${redis.host}
+redis.port=${redis.port}
+redis.dataBaseIndex=${redis.dataBaseIndex}
+redis.password=${redis.password}
