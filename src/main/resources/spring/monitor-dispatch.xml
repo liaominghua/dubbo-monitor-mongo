@@ -5,7 +5,6 @@
        xmlns:mvc="http://www.springframework.org/schema/mvc"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:p="http://www.springframework.org/schema/p"
        xsi:schemaLocation="http://www.springframework.org/schema/aop
         http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
         http://www.springframework.org/schema/beans
@@ -21,9 +20,7 @@
      <!-- set annotation support is true -->  
     <mvc:annotation-driven />  
     
-    <!-- autoscan @Component , @Controller , @Service , @Repository ... annotation 
-    
-    ,com.handu.open.dubbo.monitor.session-->
+    <!-- autoscan @Component , @Controller , @Service , @Repository ... annotation -->
     <context:component-scan base-package="com.handu.open.dubbo.monitor.controller" />  
    
     <!-- load static resources -->
@@ -56,7 +53,5 @@
          <property name="contentType" value="text/html; charset=UTF-8" />
          <property name="order" value="1" />
     </bean>
-    <!-- 
-    <bean class="com.handu.open.dubbo.monitor.session.Initializer"/>
-     -->
+    
 </beans>
