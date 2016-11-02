@@ -23,9 +23,11 @@ import com.handu.open.dubbo.monitor.domain.DubboHost;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,6 +96,28 @@ public class HostsController {
         model.addAttribute("address", NetUtils.getHostName(host) + "/" + host);
         model.addAttribute("rows", rows);
         return "host/providers";
+    }
+    
+    @RequestMapping(value = "/providers/check", method = RequestMethod.GET)
+    @ResponseBody
+    public String checkProviderByHostPort(@RequestParam String host, @RequestParam(required=false) Integer port) {
+        List<URL> providers = registryContainer.getProvidersByHost(host);
+        if (providers != null && providers.size() > 0) {
+        	if(port == null) {
+        		return "{status:1}";
+        	}
+        	else {
+        		for (URL u : providers) {
+                	if(u.getPort() == port) {
+                		return "{status:1}";
+                	}
+                }
+        		return "{status:0}";
+        	}
+        }
+        else {
+        	return "{status:0}";
+        }
     }
 
     @RequestMapping(value = "/consumers", method = RequestMethod.GET)
