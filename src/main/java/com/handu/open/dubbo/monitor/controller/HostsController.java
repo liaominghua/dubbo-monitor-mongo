@@ -100,14 +100,21 @@ public class HostsController {
     
     @RequestMapping(value = "/providers/check", method = RequestMethod.GET)
     @ResponseBody
-    public String checkProviderByHostPort(@RequestParam String host, @RequestParam(required=false) Integer port) {
-        List<URL> providers = registryContainer.getProvidersByHost(host);
-        if (providers != null && providers.size() > 0) {
+    public String checkProviderByHostPort(@RequestParam String host, @RequestParam(required=false) Integer port,@RequestParam(defaultValue="1") Integer type) {
+    	List<URL> urls = null;
+    	if(type == 1) {
+    		urls = registryContainer.getProvidersByHost(host);
+    	}
+    	else if(type == 0) {
+    		urls = registryContainer.getConsumersByHost(host);
+    	}
+    	
+        if (urls != null && urls.size() > 0) {
         	if(port == null) {
         		return "{status:1}";
         	}
         	else {
-        		for (URL u : providers) {
+        		for (URL u : urls) {
                 	if(u.getPort() == port) {
                 		return "{status:1}";
                 	}
@@ -119,7 +126,7 @@ public class HostsController {
         	return "{status:0}";
         }
     }
-
+    
     @RequestMapping(value = "/consumers", method = RequestMethod.GET)
     public String consumers(@RequestParam String host, Model model) {
         List<URL> consumers = registryContainer.getConsumersByHost(host);
