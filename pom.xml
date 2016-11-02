@@ -137,9 +137,9 @@
 			<version>${jetbrick-template.version}</version>
 		</dependency>
 		<dependency>
-		    <groupId>com.github.subchen</groupId>
-		    <artifactId>jetbrick-template-web</artifactId>
-		    <version>${jetbrick-template.version}</version>
+			<groupId>com.github.subchen</groupId>
+			<artifactId>jetbrick-template-web</artifactId>
+			<version>${jetbrick-template.version}</version>
 		</dependency>
 		<!-- Spring Data Support -->
 		<dependency>
@@ -162,6 +162,16 @@
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.session</groupId>
+			<artifactId>spring-session</artifactId>
+			<version>1.2.2.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.session</groupId>
+			<artifactId>spring-session-data-redis</artifactId>
+			<version>1.2.2.RELEASE</version>
 		</dependency>
 	</dependencies>
 
