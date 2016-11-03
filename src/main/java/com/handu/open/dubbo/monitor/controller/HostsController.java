@@ -42,106 +42,103 @@ import java.util.Set;
 @RequestMapping("/hosts")
 public class HostsController {
 
-    @Autowired
-    private RegistryContainer registryContainer;
+	@Autowired
+	private RegistryContainer registryContainer;
 
-    @RequestMapping(method = RequestMethod.GET)
-    public String hosts(Model model) {
-        List<DubboHost> rows = new ArrayList<DubboHost>();
-        Set<String> hosts = registryContainer.getHosts();
+	@RequestMapping(method = RequestMethod.GET)
+	public String hosts(Model model) {
+		List<DubboHost> rows = new ArrayList<DubboHost>();
+		Set<String> hosts = registryContainer.getHosts();
 
-        if (hosts != null && hosts.size() > 0) {
-            DubboHost dubboHost;
-            for (String host : hosts) {
-                dubboHost = new DubboHost();
+		if (hosts != null && hosts.size() > 0) {
+			DubboHost dubboHost;
+			for (String host : hosts) {
+				dubboHost = new DubboHost();
 
-                dubboHost.setHost(host);
-                dubboHost.setHostname(NetUtils.getHostName(host));
+				dubboHost.setHost(host);
+				dubboHost.setHostname(NetUtils.getHostName(host));
 
-                List<URL> providers = registryContainer.getProvidersByHost(host);
-                List<URL> consumers = registryContainer.getConsumersByHost(host);
+				List<URL> providers = registryContainer.getProvidersByHost(host);
+				List<URL> consumers = registryContainer.getConsumersByHost(host);
 
-                if ((providers != null && providers.size() > 0) || (consumers != null && consumers.size() > 0)) {
-                    URL url = (providers != null && providers.size() > 0) ? providers.iterator().next() : consumers.iterator().next();
-                    dubboHost.setApplication(url.getParameter(Constants.APPLICATION_KEY, ""));
-                    dubboHost.setOwner(url.getParameter("owner", ""));
-                    dubboHost.setOrganization((url.hasParameter("organization") ? url.getParameter("organization") : ""));
-                }
+				if ((providers != null && providers.size() > 0) || (consumers != null && consumers.size() > 0)) {
+					URL url = (providers != null && providers.size() > 0) ? providers.iterator().next()
+							: consumers.iterator().next();
+					dubboHost.setApplication(url.getParameter(Constants.APPLICATION_KEY, ""));
+					dubboHost.setOwner(url.getParameter("owner", ""));
+					dubboHost.setOrganization(
+							(url.hasParameter("organization") ? url.getParameter("organization") : ""));
+				}
 
-                int providerSize = providers == null ? 0 : providers.size();
-                dubboHost.setProviderCount(providerSize);
+				int providerSize = providers == null ? 0 : providers.size();
+				dubboHost.setProviderCount(providerSize);
 
-                int consumerSize = consumers == null ? 0 : consumers.size();
-                dubboHost.setConsumerCount(consumerSize);
+				int consumerSize = consumers == null ? 0 : consumers.size();
+				dubboHost.setConsumerCount(consumerSize);
 
-                rows.add(dubboHost);
-            }
-        }
+				rows.add(dubboHost);
+			}
+		}
 
-        model.addAttribute("rows", rows);
-        return "host/hosts";
-    }
+		model.addAttribute("rows", rows);
+		return "host/hosts";
+	}
 
-    @RequestMapping(value = "/providers", method = RequestMethod.GET)
-    public String providers(@RequestParam String host, Model model) {
-        List<URL> providers = registryContainer.getProvidersByHost(host);
-        List<String> rows = new ArrayList<String>();
-        if (providers != null && providers.size() > 0) {
-            for (URL u : providers) {
-                rows.add(u.toFullString());
-            }
-        }
+	@RequestMapping(value = "/providers", method = RequestMethod.GET)
+	public String providers(@RequestParam String host, Model model) {
+		List<URL> providers = registryContainer.getProvidersByHost(host);
+		List<String> rows = new ArrayList<String>();
+		if (providers != null && providers.size() > 0) {
+			for (URL u : providers) {
+				rows.add(u.toFullString());
+			}
+		}
 
-        model.addAttribute("host", host);
-        model.addAttribute("address", NetUtils.getHostName(host) + "/" + host);
-        model.addAttribute("rows", rows);
-        return "host/providers";
-    }
-    
-    @RequestMapping(value = "/providers/check", method = RequestMethod.GET)
-    @ResponseBody
-    public String checkProviderByHostPort(@RequestParam String host, @RequestParam(required=false) Integer port,@RequestParam(defaultValue="1") Integer type) {
-    	List<URL> urls = null;
-    	// provider
-    	if(type == 1) {
-    		urls = registryContainer.getProvidersByHost(host);
-    	}
-    	else if(type == 0) {
-    		urls = registryContainer.getConsumersByHost(host);
-    	}
-    	
-        if (urls != null && urls.size() > 0) {
-        	if(type ==1 ||  port == null) {
-        		return "{status:1}";
-        	}
-        	else {
-        		for (URL u : urls) {
-                	if(u.getPort() == port) {
-                		return "{status:1}";
-                	}
-                }
-        		return "{status:0}";
-        	}
-        }
-        else {
-        	return "{status:0}";
-        }
-    }
-    
-    @RequestMapping(value = "/consumers", method = RequestMethod.GET)
-    public String consumers(@RequestParam String host, Model model) {
-        List<URL> consumers = registryContainer.getConsumersByHost(host);
-        List<String> rows = new ArrayList<String>();
-        if (consumers != null && consumers.size() > 0) {
-            for (URL u : consumers) {
-                rows.add(u.toFullString());
-            }
-        }
+		model.addAttribute("host", host);
+		model.addAttribute("address", NetUtils.getHostName(host) + "/" + host);
+		model.addAttribute("rows", rows);
+		return "host/providers";
+	}
 
-        model.addAttribute("host", host);
-        model.addAttribute("address", NetUtils.getHostName(host) + "/" + host);
-        model.addAttribute("rows", rows);
-        return "host/consumers";
-    }
+	@RequestMapping(value = "/providers/check", method = RequestMethod.GET)
+	@ResponseBody
+	public String checkProviderByHostPort(@RequestParam String host, @RequestParam(required = false) Integer port,
+			@RequestParam(defaultValue = "1") Integer type) {
+		List<URL> urls = null;
+		// provider
+		if (type == 1) {
+			urls = registryContainer.getProvidersByHost(host);
+		} else if (type == 0) {
+			urls = registryContainer.getConsumersByHost(host);
+		}
+
+		if (urls != null && urls.size() > 0) {
+			return "{status:1}";
+		} else {
+			for (URL u : urls) {
+				if (u.getPort() == port) {
+					return "{status:1}";
+				}
+			}
+			return "{status:0}";
+		}
+	}
+
+
+	@RequestMapping(value = "/consumers", method = RequestMethod.GET)
+	public String consumers(@RequestParam String host, Model model) {
+		List<URL> consumers = registryContainer.getConsumersByHost(host);
+		List<String> rows = new ArrayList<String>();
+		if (consumers != null && consumers.size() > 0) {
+			for (URL u : consumers) {
+				rows.add(u.toFullString());
+			}
+		}
+
+		model.addAttribute("host", host);
+		model.addAttribute("address", NetUtils.getHostName(host) + "/" + host);
+		model.addAttribute("rows", rows);
+		return "host/consumers";
+	}
 
 }
