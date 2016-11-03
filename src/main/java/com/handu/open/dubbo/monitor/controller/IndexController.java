@@ -25,6 +25,7 @@ import com.handu.open.dubbo.monitor.mvc.UserLogin;
 import com.handu.open.dubbo.monitor.support.CommonResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -72,8 +73,8 @@ public class IndexController {
     }
     
     @RequestMapping(value = "doLogin")
-    public String doLogin(@RequestParam(required=true) String username,
-    					  @RequestParam(required=true) String password,
+    public String doLogin(@RequestParam(required=false) String username,
+    					  @RequestParam(required=false) String password,
     					  HttpServletRequest request) {
     	HttpSession session = request.getSession();
     	Serializable obj = userLogin.doLogin(username, password);
@@ -82,7 +83,14 @@ public class IndexController {
     	}
     	
     	session.setAttribute("user.key", obj);
-    	return "index";
+    	return "redirect:index";
+    }
+    
+    @RequestMapping(value = "doLogout")
+    public String doLogout( HttpServletRequest request) {
+    	HttpSession session = request.getSession();
+    	session.removeAttribute("user.key");
+ 		return "login";
     }
 
     @ResponseBody

@@ -31,11 +31,23 @@
             <mvc:mapping path="/**"/>
             <mvc:exclude-mapping path="/resources/**"/>
             <mvc:exclude-mapping path="/login"/>
-             <mvc:exclude-mapping path="/doLogin"/>
-             <mvc:exclude-mapping path="/hosts/providers/check"/>
+            <mvc:exclude-mapping path="/doLogin"/>
+            <mvc:exclude-mapping path="/hosts/providers/check"/>
              
             <bean class="com.handu.open.dubbo.monitor.mvc.CheckUserInterceptor">
             	<property name="loginPage" value="/dubbo-monitor/login"></property>
+            	<property name="userSessionKey" value="user.key"></property>
+            </bean>
+        </mvc:interceptor>
+        
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/resources/**"/>
+            <mvc:exclude-mapping path="/login"/>
+             <mvc:exclude-mapping path="/doLogin"/>
+             <mvc:exclude-mapping path="/doLogout"/>
+             <mvc:exclude-mapping path="/hosts/providers/check"/>
+            <bean class="com.handu.open.dubbo.monitor.mvc.UserPutInterceptor">
             	<property name="userSessionKey" value="user.key"></property>
             </bean>
         </mvc:interceptor>
