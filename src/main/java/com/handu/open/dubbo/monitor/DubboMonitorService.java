@@ -172,8 +172,8 @@ public class DubboMonitorService implements MonitorService {
 
     public void collect(URL statistics) {
         queue.offer(statistics);
-        if (logger.isInfoEnabled()) {
-            logger.info("collect statistics: " + statistics);
+        if (logger.isDebugEnabled()) {
+            logger.debug("collect statistics: " + statistics);
         }
 
     }
