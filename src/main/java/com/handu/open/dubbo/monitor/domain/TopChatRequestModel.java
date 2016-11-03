@@ -33,6 +33,8 @@ public class TopChatRequestModel {
 	
 	public static final String DEFAULT_TYPE = "consumer";
 	
+	public static final String AVG_ELAPSED="agvelapsed";
+	
 	private static final Map<String, String>  map = new HashMap<String, String>();
 	static {
 		map.put("concur",CONCURRENT);
@@ -40,6 +42,7 @@ public class TopChatRequestModel {
 		map.put("fail",FAILURE);
 		map.put("maxconcur",MAXCONCURRENT);
 		map.put("maxelap",MAXELAPSED);
+		map.put("agvelapsed",AVG_ELAPSED);
 	}
 	
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

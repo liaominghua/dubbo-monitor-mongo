@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -110,8 +111,8 @@ public class IndexController {
             if(TopChatRequestModel.CONCURRENT.equals(topChatRequestModel.getServiceType())){
             	data = new double[]{di.getConcurrent()};
             }
-            else if(TopChatRequestModel.ELAPSED.equals(topChatRequestModel.getServiceType())) {
-            	data = new double[]{di.getElapsed()};
+            else if(TopChatRequestModel.AVG_ELAPSED.equals(topChatRequestModel.getServiceType()) || TopChatRequestModel.ELAPSED.equals(topChatRequestModel.getServiceType())) {
+            	data = new double[]{new BigDecimal(String.valueOf(di.getElapsed())).setScale(2, BigDecimal.ROUND_DOWN).doubleValue()};
             }
             else if(TopChatRequestModel.SUCCESS.equals(topChatRequestModel.getServiceType())) {
             	data = new double[]{di.getSuccess()};
@@ -138,7 +139,13 @@ public class IndexController {
         successDubboInvokeLineChart.setSeriesData(Arrays.asList(slineChartSeries));
         successDubboInvokeLineChart.setChartType(topChatRequestModel.getServiceType());
         successDubboInvokeLineChart.setTitle("The Top "+topChatRequestModel.getSize()+" of Invoke "+topChatRequestModel.getServiceType());
-        successDubboInvokeLineChart.setyAxisTitle(" t");
+        if(TopChatRequestModel.AVG_ELAPSED.equals(topChatRequestModel.getServiceType()) || TopChatRequestModel.ELAPSED.equals(topChatRequestModel.getServiceType())) {
+        	 successDubboInvokeLineChart.setyAxisTitle(" ms");
+        }
+        else {
+        	 successDubboInvokeLineChart.setyAxisTitle(" t");
+        }
+       
         dubboInvokeLineChartList.add(successDubboInvokeLineChart);
 
         commonResponse.setData(dubboInvokeLineChartList);
